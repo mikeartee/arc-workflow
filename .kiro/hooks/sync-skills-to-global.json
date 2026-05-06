@@ -1,0 +1,12 @@
+{
+  "name": "Sync Skills to Global",
+  "version": "1.0.0",
+  "description": "Pulls the latest skills from the ZSL repo and copies them to ~/.kiro/skills/",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "git pull && Copy-Item -Recurse -Force .kiro/skills/* $HOME/.kiro/skills/"
+  }
+}
