@@ -2,17 +2,17 @@
 
 ## Introduction
 
-The user wants to build a personalized spin on the ZSL Skills workflow for Kiro IDE. The ZSL Skills repo (originally built for Claude Code) has been cloned and partially converted to Kiro by placing skills in `.kiro/skills/` and a steering file in `.kiro/steering/zsl-workflow.md`. The goal is to go further: customize the individual skills, the orchestrating workflow, and the steering file to match how the user personally works — rather than using the ZSL defaults as-is.
+The user wants to build a personalized spin on the Arc Skills workflow for Kiro IDE. The Arc Skills repo (originally built for Claude Code) has been cloned and partially converted to Kiro by placing skills in `.kiro/skills/` and a steering file in `.kiro/steering/arc-workflow.md`. The goal is to go further: customize the individual skills, the orchestrating workflow, and the steering file to match how the user personally works — rather than using the Arc defaults as-is.
 
 This feature covers the full lifecycle of that customization: understanding the existing system, deciding what to keep or change, authoring the custom versions, and wiring them together into a coherent personal workflow.
 
 ## Glossary
 
 - **Skill**: A markdown file (with YAML front matter) placed in `.kiro/skills/<name>/SKILL.md` that Kiro loads as a named agent behavior. Equivalent to a Claude Code slash command.
-- **Steering file**: A markdown file in `.kiro/steering/` that Kiro injects into the agent's context. Can be `always`, `manual`, or `fileMatch` inclusion. The `zsl-workflow.md` steering file orchestrates the end-to-end workflow.
-- **Workflow**: The ordered sequence of skill invocations that takes a rough idea from alignment → PRD → issues → triage → build → review. Currently defined in `.kiro/steering/zsl-workflow.md`.
-- **Personal workflow**: The user's customized version of the Workflow — different phase order, different skills, different defaults, or different rules than the ZSL originals.
-- **Skill bundle**: The set of skills that together implement a complete Workflow. Currently the ZSL bundle lives in `.kiro/skills/`.
+- **Steering file**: A markdown file in `.kiro/steering/` that Kiro injects into the agent's context. Can be `always`, `manual`, or `fileMatch` inclusion. The `arc-workflow.md` steering file orchestrates the end-to-end workflow.
+- **Workflow**: The ordered sequence of skill invocations that takes a rough idea from alignment → PRD → issues → triage → build → review. Currently defined in `.kiro/steering/arc-workflow.md`.
+- **Personal workflow**: The user's customized version of the Workflow — different phase order, different skills, different defaults, or different rules than the Arc originals.
+- **Skill bundle**: The set of skills that together implement a complete Workflow. Currently the Arc bundle lives in `.kiro/skills/`.
 - **Phase**: A named step in the Workflow (e.g. "Understand what you're building", "Write the PRD"). Each phase invokes one or more Skills.
 - **Agent brief**: A structured comment posted to an issue by the `triage` skill that gives an AFK agent everything it needs to implement the slice without human context.
 - **AFK slice**: An issue slice that is fully specified and can be implemented by an agent without human interaction.
@@ -26,7 +26,7 @@ This feature covers the full lifecycle of that customization: understanding the 
 
 ### Requirement 1: Audit the Existing Skill Set
 
-**User Story:** As a developer customizing the ZSL workflow, I want to review all converted skills side-by-side with the originals, so that I can decide which to keep, modify, or drop before writing any custom versions.
+**User Story:** As a developer customizing the Arc workflow, I want to review all converted skills side-by-side with the originals, so that I can decide which to keep, modify, or drop before writing any custom versions.
 
 #### Acceptance Criteria
 
@@ -38,7 +38,7 @@ This feature covers the full lifecycle of that customization: understanding the 
 
 ### Requirement 2: Customize Individual Skills
 
-**User Story:** As a developer, I want to edit the content of individual skills to match my personal preferences, so that the agent behaves the way I want rather than following ZSL defaults.
+**User Story:** As a developer, I want to edit the content of individual skills to match my personal preferences, so that the agent behaves the way I want rather than following Arc defaults.
 
 #### Acceptance Criteria
 
@@ -57,7 +57,7 @@ This feature covers the full lifecycle of that customization: understanding the 
 #### Acceptance Criteria
 
 1. THE Steering_File SHALL be editable as plain markdown so the user can reorder phases, add new phases, or remove phases without touching any code.
-2. WHEN the user changes the `inclusion` front-matter field in `.kiro/steering/zsl-workflow.md` from `manual` to `always`, THE Steering_Loader SHALL inject the workflow into every agent session automatically.
+2. WHEN the user changes the `inclusion` front-matter field in `.kiro/steering/arc-workflow.md` from `manual` to `always`, THE Steering_Loader SHALL inject the workflow into every agent session automatically.
 3. THE Steering_File SHALL reference skills by their `name` front-matter value so that renaming a skill directory requires only updating the steering file reference, not the skill itself.
 4. WHEN the user adds a new phase to the Steering_File, THE Workflow_System SHALL execute that phase in the position it appears in the file, preserving the declared order.
 5. IF the user removes a phase from the Steering_File, THEN THE Workflow_System SHALL skip that phase without erroring, provided no later phase declares a hard dependency on it.
@@ -66,13 +66,13 @@ This feature covers the full lifecycle of that customization: understanding the 
 
 ### Requirement 4: Personalize the Setup Skill
 
-**User Story:** As a developer, I want to customize the `setup-zsl-skills` skill to reflect my preferred defaults (issue tracker, ship style, label vocabulary), so that new repos are configured the way I work without re-answering the same questions every time.
+**User Story:** As a developer, I want to customize the `setup-arc` skill to reflect my preferred defaults (issue tracker, ship style, label vocabulary), so that new repos are configured the way I work without re-answering the same questions every time.
 
 #### Acceptance Criteria
 
 1. THE Setup_Skill SHALL allow the user to hard-code default answers for any of the five setup sections (issue tracker, triage labels, domain docs, ship style, project board) so those sections are skipped or pre-filled during setup.
 2. WHEN the user runs the Setup_Skill on a repo that already has `docs/agents/` populated, THE Setup_Skill SHALL detect the existing configuration and offer to update specific sections rather than re-running the full setup.
-3. THE Setup_Skill SHALL write `docs/agents/` files using the user's customized templates rather than the ZSL seed templates, so the output matches the user's preferred format.
+3. THE Setup_Skill SHALL write `docs/agents/` files using the user's customized templates rather than the seed templates, so the output matches the user's preferred format.
 4. IF the user's preferred issue tracker is not GitHub, GitLab, or local markdown, THEN THE Setup_Skill SHALL accept a freeform prose description and record it in `docs/agents/issue-tracker.md` without requiring a code change to the skill.
 
 ---
@@ -112,7 +112,7 @@ This feature covers the full lifecycle of that customization: understanding the 
 
 #### Acceptance Criteria
 
-1. THE Triage_Skill SHALL read triage label strings from `docs/agents/triage-labels.md` and use those strings when applying labels, never the canonical ZSL defaults.
+1. THE Triage_Skill SHALL read triage label strings from `docs/agents/triage-labels.md` and use those strings when applying labels, never the canonical defaults.
 2. WHEN the user moves an issue to `ready-for-agent`, THE Triage_Skill SHALL post an agent brief comment using the format defined in the bundled `AGENT-BRIEF.md` resource file.
 3. THE Triage_Skill SHALL allow the user to customize the agent brief format by editing the bundled `AGENT-BRIEF.md` file without modifying the skill's core logic.
 4. WHEN the user invokes triage with a quick override (e.g. "move #42 to ready-for-agent"), THE Triage_Skill SHALL apply the role directly without running a grilling session, but SHALL ask whether the user wants to write an agent brief.
@@ -122,7 +122,7 @@ This feature covers the full lifecycle of that customization: understanding the 
 
 ### Requirement 8: Add or Remove Phases from the Personal Workflow
 
-**User Story:** As a developer, I want to add phases that don't exist in the ZSL defaults (e.g. a "spike" phase before the PRD, or a "demo" phase after shipping), so that the workflow reflects my actual process.
+**User Story:** As a developer, I want to add phases that don't exist in the Arc defaults (e.g. a "spike" phase before the PRD, or a "demo" phase after shipping), so that the workflow reflects my actual process.
 
 #### Acceptance Criteria
 
@@ -142,7 +142,7 @@ This feature covers the full lifecycle of that customization: understanding the 
 1. THE Skill_System SHALL load skills from `~/.kiro/skills/` as global skills available in every workspace.
 2. THE Skill_System SHALL load skills from `.kiro/skills/` as workspace-local skills that override global skills of the same name.
 3. WHEN a workspace-local skill and a global skill share the same `name` front-matter value, THE Skill_Loader SHALL prefer the workspace-local version.
-4. THE Skill_System SHALL allow the user to maintain a personal fork of the ZSL skill bundle in `~/.kiro/skills/` so that customizations persist across all repos without needing to copy files into each workspace.
+4. THE Skill_System SHALL allow the user to maintain a personal fork of the Arc skill bundle in `~/.kiro/skills/` so that customizations persist across all repos without needing to copy files into each workspace.
 
 ---
 

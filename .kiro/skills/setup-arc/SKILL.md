@@ -1,10 +1,10 @@
 ---
-name: setup-zsl-skills
+name: setup-arc
 description: Sets up an `## Agent skills` block in AGENTS.md/CLAUDE.md and `docs/agents/` so the engineering skills know this repo's issue tracker (GitHub or local markdown), triage label vocabulary, domain doc layout, and ship style (PR vs direct push). Run before first use of `to-issues`, `to-prd`, `triage`, `diagnose`, `tdd`, `improve-codebase-architecture`, or `zoom-out` — or if those skills appear to be missing context about the issue tracker, triage labels, domain docs, or ship style.
 disable-model-invocation: true
 ---
 
-# Setup ZSL Skills
+# Setup Arc
 
 Scaffold the per-repo configuration that the engineering skills assume:
 
@@ -29,6 +29,29 @@ Look at the current repo to understand its starting state. Read whatever exists;
 - `docs/agents/` — does this skill's prior output already exist?
 - `.scratch/` — sign that a local-markdown issue tracker convention is already in use
 
+### 1b. Partial re-run (when `docs/agents/` already exists)
+
+If step 1 reveals that `docs/agents/` already exists, do **not** run the full setup. Instead, present a numbered checklist and ask the user which sections to update:
+
+```
+docs/agents/ already exists. Which sections would you like to update?
+
+1. Issue tracker
+2. Triage labels
+3. Domain docs
+4. Ship style
+5. Project board
+
+Enter the numbers of sections to update (e.g. "2, 4"), or "all" to re-run everything.
+```
+
+**Rules for partial re-run:**
+
+- Re-run only the selected sections. For each selected number, jump to the corresponding Section (A–E) in step 2 below, ask the user the question, and rewrite only that section's `docs/agents/` file.
+- **Do not touch unselected section files.** If the user picks "2, 4", only `docs/agents/triage-labels.md` and `docs/agents/ship-style.md` are rewritten. The other files remain exactly as they are.
+- After rewriting the selected files, update the `## Agent skills` block in `CLAUDE.md` / `AGENTS.md` to reflect any changed summaries, then skip to step 5 (Done).
+- If the user enters "all", proceed with the full setup as if `docs/agents/` did not exist (i.e. continue to step 2 normally).
+
 ### 2. Present findings and ask
 
 Summarise what's present and what's missing. Then walk the user through the five decisions **one at a time** — present a section, get the user's answer, then move to the next. Don't dump them all at once.
@@ -45,6 +68,12 @@ Default posture: these skills were designed for GitHub. If a `git remote` points
 - **GitLab** — issues live in the repo's GitLab Issues (uses the [`glab`](https://gitlab.com/gitlab-org/cli) CLI)
 - **Local markdown** — issues live as files under `.scratch/<feature>/` in this repo (good for solo projects or repos without a remote)
 - **Other** (Jira, Linear, etc.) — ask the user to describe the workflow in one paragraph; the skill will record it as freeform prose
+
+**Handling the "Other" option:** When the user selects "Other", prompt them with:
+
+> Describe how issues are tracked for this repo in one paragraph — what tool, how skills should create/read/close issues, and any CLI or API details they need. I'll record your description verbatim.
+
+Take whatever the user writes and write it as-is to `docs/agents/issue-tracker.md`. Do not parse it into structured fields, do not reformat it, do not extract metadata. Write the prose verbatim as the file content. No seed template is used — the user's paragraph is the entire file.
 
 **Section B — Triage label vocabulary.**
 
@@ -219,3 +248,5 @@ For "other" issue trackers, write `docs/agents/issue-tracker.md` from scratch us
 ### 5. Done
 
 Tell the user the setup is complete and which engineering skills will now read from these files. Mention they can edit `docs/agents/*.md` directly later — re-running this skill is only necessary if they want to switch issue trackers or restart from scratch.
+
+<!-- Platform guarantee: Kiro reads skill files on each invocation. No restart needed after edits. -->

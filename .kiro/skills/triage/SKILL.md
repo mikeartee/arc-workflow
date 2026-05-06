@@ -7,6 +7,14 @@ description: Triage issues through a state machine driven by triage roles. Use w
 
 Move issues on the project issue tracker through a small state machine of triage roles.
 
+## Pre-flight: load custom label strings
+
+Before executing any triage action, read `docs/agents/triage-labels.md` in the current repo. Use the label strings defined there for all label operations. **Never** use the canonical default strings (`needs-triage`, `ready-for-agent`, `ready-for-human`, `needs-info`, `tracking`, `wontfix`) when that file exists — always substitute the repo's configured equivalents.
+
+If `docs/agents/triage-labels.md` is absent, **halt immediately** and instruct the user:
+
+> `docs/agents/triage-labels.md` not found. Run `/setup-arc` to configure your triage label vocabulary before using this skill.
+
 Every comment or issue posted to the issue tracker during triage **must** start with this disclaimer:
 
 ```
@@ -36,7 +44,7 @@ Six **state** roles:
 
 Every triaged issue should carry exactly one category role and one state role. If state roles conflict, flag it and ask the maintainer before doing anything else.
 
-These are canonical role names — the actual label strings used in the issue tracker may differ. The mapping should have been provided to you - run `/setup-zsl-skills` if not.
+These are canonical role names — the actual label strings used in the issue tracker may differ. The mapping should have been provided to you - run `/setup-arc` if not.
 
 State transitions: an unlabeled issue normally goes to `needs-triage` first; from there it moves to `needs-info`, `ready-for-agent`, `ready-for-human`, `tracking`, or `wontfix`. `needs-info` returns to `needs-triage` once the reporter replies. `tracking` is set automatically by `/to-issues` after it breaks an issue into sub-issues, and the parent auto-closes when the last child closes (no manual transition needed). The maintainer can override at any time — flag transitions that look unusual and ask before proceeding.
 
@@ -70,6 +78,13 @@ Show counts and a one-line summary per issue. Let the maintainer pick.
 4. **Grill (if needed).** If the issue needs fleshing out, run a `/grill-with-docs` session.
 
 5. **Apply the outcome:**
+
+   **Hard error check (before posting any agent brief):** If the outcome requires posting an agent brief (i.e. `ready-for-agent` or `ready-for-human`), verify that `AGENT-BRIEF.md` exists in this skill's directory. If it is absent, surface a `missing-resource` error:
+
+   > Error: `AGENT-BRIEF.md` not found in the triage skill directory. Cannot post an agent brief. Restore or create `AGENT-BRIEF.md` before moving an issue to `ready-for-agent`.
+
+   **Halt immediately.** Do not post a brief using any fallback or default format. Do not proceed with the label change for `ready-for-agent` until the brief can be posted.
+
    - `ready-for-agent` — post an agent brief comment ([AGENT-BRIEF.md](AGENT-BRIEF.md)).
    - `ready-for-human` — same structure as an agent brief, but note why it can't be delegated (judgment calls, external access, design decisions, manual testing).
    - `needs-info` — post triage notes (template below).
@@ -85,7 +100,7 @@ Show counts and a one-line summary per issue. Let the maintainer pick.
       ```bash
       gh api graphql -f query='query { repository(owner:"<owner>", name:"<repo>") { issue(number:N) { projectItems(first:20) { nodes { id project { id } } } } } }'
       ```
-      Filter by `project.id` matching the configured project node ID. If no match, log *"issue not in configured project; skipping Status update"* and continue.
+      Filter by `project.id` matching the configured project node ID. If no match, log *"issue not in configured project; skipping Status update"* and continue. **The label change is not rolled back** — the board sync is best-effort and not every issue will be on the project.
    3. Map the new state label to its Status option ID via the mapping table.
    4. Update via:
       ```bash
@@ -100,7 +115,9 @@ Show counts and a one-line summary per issue. Let the maintainer pick.
 
 ## Quick state override
 
-If the maintainer says "move #42 to ready-for-agent", trust them and apply the role directly. Confirm what you're about to do (role changes, comment, close), then act. Skip grilling. If moving to `ready-for-agent` without a grilling session, ask whether they want to write an agent brief.
+If the maintainer says "move #42 to ready-for-agent", trust them and apply the role directly. Confirm what you're about to do (role changes, comment, close), then act. Skip grilling.
+
+**The label transition is mandatory; the agent brief is optional.** Always apply the label change regardless of whether the user wants an agent brief. If moving to `ready-for-agent` without a grilling session, ask whether they want to write an agent brief. If the user declines the brief, the issue is still moved to `ready-for-agent` with the label applied and no brief comment posted.
 
 ## Needs-info template
 

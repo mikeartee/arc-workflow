@@ -6,15 +6,39 @@ disable-model-invocation: true
 
 <what-to-do>
 
+## Session start
+
+Before asking any questions, perform a proactive conflict scan:
+
+1. Read `CONTEXT.md` (if it exists).
+2. Scan the user's opening message for terms that conflict with or diverge from the glossary in `CONTEXT.md`.
+3. Surface any conflicts immediately as your first output — e.g. "Your glossary defines 'cancellation' as X, but you seem to mean Y — which is it?"
+4. Only after resolving all upfront conflicts, proceed to ask new questions.
+
+If `CONTEXT.md` does not exist yet, skip the scan and proceed directly.
+
+## Grilling
+
 Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
 
 Ask the questions one at a time, waiting for feedback on each question before continuing.
 
 If a question can be answered by exploring the codebase, explore the codebase instead.
 
+## Inline documentation updates
+
+When a term is resolved during the session, update `CONTEXT.md` immediately — in the same response turn where the term is resolved. Never batch CONTEXT.md updates to the end of the session. Each resolved term must be captured the moment it is decided.
+
+When a decision meets all three ADR conditions (hard to reverse, surprising without context, result of a real trade-off), offer to create an ADR inline — immediately after the decision is resolved and before moving to the next question. ADR offers are never batched to the end of the session.
+
 </what-to-do>
 
 <supporting-info>
+
+## Bundled resources
+
+- [questions.md](./questions.md) — standing domain questions to include in every session
+- [config.md](./config.md) — session configuration (e.g. max-questions)
 
 ## Domain awareness
 
@@ -72,7 +96,7 @@ When the user states how something works, check whether the code agrees. If you 
 
 ### Update CONTEXT.md inline
 
-When a term is resolved, update `CONTEXT.md` right there. Don't batch these up — capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
+When a term is resolved, update `CONTEXT.md` in the same response turn — immediately, never batched. Don't wait until the end of the session. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
 
 Don't couple `CONTEXT.md` to implementation details. Only include terms that are meaningful to domain experts.
 
@@ -84,6 +108,10 @@ Only offer to create an ADR when all three are true:
 2. **Surprising without context** — a future reader will wonder "why did they do it this way?"
 3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
 
-If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).
+If any of the three is missing, skip the ADR.
+
+**Timing:** Make the ADR offer inline, immediately after the decision is resolved and before moving to the next question. Never batch ADR offers to the end of the session.
+
+Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).
 
 </supporting-info>

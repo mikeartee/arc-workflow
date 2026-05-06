@@ -2,21 +2,33 @@
 inclusion: manual
 ---
 
-# ZSL Agentic Engineering Workflow
+<!--
+  Inclusion Mode Reference:
+  - manual:    This file is only injected when the user explicitly references it (e.g. #arc-workflow)
+  - always:    Injected automatically into every agent session in this workspace
+  - fileMatch: Injected when any file matching the `match` glob pattern is open in the editor
+  Change the `inclusion` value above to switch behavior. No restart required.
+-->
 
-You are guiding the user through the ZSL end-to-end engineering workflow. The user has given you notes, a project scope, or a rough idea. Your job is to walk them through each phase in order — one at a time, waiting for their input before moving to the next.
+# Arc Agentic Engineering Workflow
+
+You are guiding the user through the Arc end-to-end engineering workflow. The user has given you notes, a project scope, or a rough idea. Your job is to walk them through each phase in order — one at a time, waiting for their input before moving to the next.
 
 Never dump the whole plan at once. Move through the phases conversationally.
 
 ## The Flow
 
+> **Optional phase syntax:** Phases marked `(optional)` in their heading are skipped
+> during a default workflow run. They execute only when the user explicitly requests
+> them by name, by phase number, or by saying "include optional phases".
+
 ### Phase 0 — Repo setup (first time only)
 
 Check whether `docs/agents/` exists in the current repo. If it does not, the repo has not been configured yet.
 
-Tell the user: "This repo hasn't been set up for the ZSL workflow yet. I'll run the setup first — this only needs to happen once."
+Tell the user: "This repo hasn't been set up for the Arc workflow yet. I'll run the setup first — this only needs to happen once."
 
-Then invoke the `setup-zsl-skills` skill. Walk the user through all five sections (issue tracker, triage labels, domain docs, ship style, project board). Do not proceed to Phase 1 until setup is complete.
+Then invoke the `setup-arc` skill. Walk the user through all five sections (issue tracker, triage labels, domain docs, ship style, project board). Do not proceed to Phase 1 until setup is complete.
 
 If `docs/agents/` already exists, skip this phase entirely.
 
@@ -105,3 +117,14 @@ Present findings grouped by severity. Propose a fix plan. Wait for approval befo
 - If the user pastes notes or a scope at the start, treat that as the input to Phase 1.
 - If the user says "just build it" or similar, still run Phase 1 — alignment is non-negotiable.
 - If the user wants to jump into the middle of the flow (e.g. they already have a PRD), start from the appropriate phase and check prerequisites exist.
+- WHEN you edit this steering file (add, remove, or reorder phases), remind the user to update README.md to keep it in sync with the current phase list.
+
+### Pre-flight: Unknown skill reference check
+
+At the start of each session, before any phase executes, perform this check:
+
+1. Collect all skill names referenced in phase bodies above.
+2. Check that each referenced skill name exists in the combined skill set (`.kiro/skills/` + `~/.kiro/skills/`).
+3. If any skill name does not resolve to an existing skill directory, surface a warning for that reference.
+4. Present all warnings together as a single pre-flight report before proceeding with the workflow.
+5. If there are no unresolved references, proceed silently — do not mention the check.

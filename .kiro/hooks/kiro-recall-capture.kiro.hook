@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "kiro-recall: /recall Capture",
+  "description": "Fires when the user sends a message starting with /recall. Captures what was built, decided, or learned and writes a structured note to the vault inbox.",
+  "version": "1",
+  "when": {
+    "type": "promptSubmit"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "kiro-recall capture hook — only activate if the user's message starts with \"/recall\". If the message does NOT start with \"/recall\", ignore this hook entirely.\n\nWhen /recall is invoked:\n\nSTEP 1 — Gather content\nIf the user provided content after \"/recall\", use that as the basis. Otherwise, infer a draft from recent session context (what was built, decided, or learned).\n\nSTEP 2 — Resolve project name\nUse the workspace name or any loaded session context to determine the project name. If not resolvable, use \"unknown\".\n\nSTEP 3 — Build the Capture Note\nCreate a markdown note with this exact structure (use ## second-level headings):\n\n## Date\n{today's date in YYYY-MM-DD format}\n\n## Project\n{project name or \"unknown\"}\n\n## What happened\n{1–3 sentences describing what was built, decided, or learned}\n\n## Why it matters\n{1–2 sentences on significance or future relevance}\n\n## Links\n{any URLs or file references from the session — OMIT THIS SECTION ENTIRELY if none}\n\nSTEP 4 — Derive filename\nFormat: YYYY-MM-DD-{project}-{slug}.md\nWhere {slug} is a short kebab-case summary from \"What happened\". Example: 2025-07-14-kiro-recall-session-hook-wired.md\n\nSTEP 5 — Check inbox before writing\nUse list_directory on \"00-inbox/\" and count existing .md files. Note whether count is 0 (first capture) or >0 (standard).\n\nSTEP 6 — Write the note\nUse write_note to save to \"00-inbox/{filename}\".\n\nSTEP 7 — Confirm\n- If inbox was empty before write (first capture): display exactly \"Note saved to your inbox. Your vault is live — next session, kiro-recall will load context automatically.\"\n- Otherwise: display \"Note saved: `{filename}`. It's in your inbox whenever you're ready to review it.\"\n\nFAILURE HANDLING:\nIf write_note fails:\n1. Display: \"Couldn't save your note to the vault — here's what you captured so you don't lose it:\"\n2. Show the full note content in a markdown code block\n3. Do NOT retry automatically\n4. Do NOT surface stack traces or internal file paths"
+  }
+}
