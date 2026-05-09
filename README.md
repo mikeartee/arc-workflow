@@ -1,5 +1,7 @@
 # Arc — Personal Engineering Workflow
 
+This is a fork of a fork, forking heck! This version is for Kiro IDE, the one I forked (unofficially, but officially) from, is the Claude Code CLI one from  Seb Kreuger https://github.com/ZunoSmartLabs/zsl-superpowers
+
 ## Installation
 
 1. Clone this repo and open it in Kiro
