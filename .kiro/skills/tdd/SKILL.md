@@ -44,23 +44,15 @@ RIGHT (vertical):
 
 - `--no-ship` — skip step 5 (Ship it). After the final refactor commit, stop and report back: branch name (`git rev-parse --abbrev-ref HEAD`), last commit sha (`git rev-parse HEAD`), and a one-paragraph summary of the changes. Do not push, do not open a PR, do not update the project board's "in review" Status. Used by `/tdd-parallel` so the orchestrator can integrate slice branches locally and ship a single consolidated PR. Step 1's "in progress" Status update still happens — the work is real, only the ship step is deferred.
 
-**Parsing:** The `--no-ship` flag is parsed from the user's natural language invocation message — it is not a literal CLI flag. Match any of: `--no-ship`, `no-ship`, or `no ship` appearing anywhere in the invocation string (case-insensitive). Examples: "run tdd on issue #42 --no-ship", "tdd this issue, no-ship", "tdd #12 no ship". When detected, step 5 is skipped entirely.
-
-## Invocation-Time Validation
-
-When this skill is loaded for execution, before running any workflow step, check that all relative links in this SKILL.md body resolve to existing files in the skill directory. For each markdown link of the form `[text](./path)` or `[text](path)` (where path does not start with `http`), verify the target file exists relative to this skill's directory. If any link is broken, surface a `missing-resource` error listing all unresolved links and halt — do not execute the skill instructions until the missing files are provided.
-
 ## Workflow
 
 ### 1. Planning
 
-**Pre-flight: refuse container issues.** If you were given an issue identifier as input, fetch it and check whether it has open sub-issues. A "sub-issue" is a child issue linked via the issue tracker's native parent-child relationship (e.g. GitHub sub-issues) — not merely mentioned in the body text or linked via a closing keyword. A sub-issue is "open" when its `state` is `open`. Only native open sub-issues trigger the refusal. Closed sub-issues and issues linked only in the body text do not count. If the issue has at least one native open sub-issue, it's a tracking parent (likely a PRD), not a unit of work. Refuse and tell the user to run `/to-issues` to break it down first, then `/tdd` against one of the leaf children.
+**Pre-flight: refuse container issues.** If you were given an issue identifier as input, fetch it and check whether it has open sub-issues. If it does, it's a tracking parent (likely a PRD), not a unit of work. Refuse and tell the user to run `/to-issues` to break it down first, then `/tdd` against one of the leaf children.
 
 **Pre-flight: signal "in progress" on the project board (if configured).** If you were given an issue identifier *and* `docs/agents/project-board.md` exists, update the issue's project item Status to the option mapped to "work begins" (typically `In progress`). Use the same lookup-then-update procedure documented in `triage/SKILL.md` step 6: fetch the project item via `gh api graphql` filtered by the configured project node ID, then `updateProjectV2ItemFieldValue` with the mapped Status option ID. If the issue isn't on the configured project, log and continue. Best-effort — failure to update Status doesn't block the TDD work. Skip entirely if `docs/agents/project-board.md` doesn't exist or you weren't given an issue identifier.
 
 When exploring the codebase, use the project's domain glossary so that test names and interface vocabulary match the project's language, and respect ADRs in the area you're touching.
-
-Before writing any code, read [patterns.md](./patterns.md) to understand the user's preferred test patterns (round-trip, invariant, metamorphic, etc.) and prioritize those when suggesting tests.
 
 Before writing any code:
 
@@ -76,8 +68,6 @@ Ask: "What should the public interface look like? Which behaviors are most impor
 **You can't test everything.** Confirm with the user exactly which behaviors matter most. Focus testing effort on critical paths and complex logic, not every possible edge case.
 
 ### 2. Tracer Bullet
-
-**Vertical slicing enforcement.** Before writing the first test, confirm with the user that you will follow the one-test → one-implementation cycle. During the session, continuously monitor: if at any point you detect that more than one test has been written without a corresponding passing implementation (i.e. horizontal slicing), immediately stop, flag the violation to the user, discard the uncommitted tests back to the last green state, and resume from there with a single test.
 
 Write ONE test that confirms ONE thing about the system:
 
@@ -120,7 +110,7 @@ After all tests pass, look for [refactor candidates](refactoring.md):
 
 **Skip this entire step if `--no-ship` was passed.** Stop after the final refactor commit and report back: branch name, last commit sha, one-paragraph summary. The orchestrator (`/tdd-parallel`) will integrate the branch and ship a consolidated PR.
 
-Once tests are green and refactored, ship the slice. The repo's workflow is defined in `docs/agents/ship-style.md` (written by `/setup-arc`) — read it before doing anything.
+Once tests are green and refactored, ship the slice. The repo's workflow is defined in `docs/agents/ship-style.md` (written by `/setup-zsl-superpowers`) — read it before doing anything.
 
 - **Always commit via `/commit`** — never craft commits yourself. The commit body must reference both the sub-task and the parent issue so git history is navigable. Use `#<num>` for GitHub/GitLab (auto-linked in the UI) or full URLs for other trackers:
 
@@ -139,7 +129,7 @@ Once tests are green and refactored, ship the slice. The repo's workflow is defi
 - **Confirm with the user** before opening a PR or pushing to the default branch.
 - **Signal "in review" on the project board (PR-style only, if configured).** If `docs/agents/project-board.md` exists *and* the ship style is PR, update the issue's project item Status to the option mapped to "PR opened" (typically `In review`) once the PR is open. The project's existing `Auto-close issue` workflow will move Status to `Done` automatically when the PR merges and closes the issue. In direct-push mode, no skill-driven Status update is needed at ship time — the closing commit triggers the same Auto-close workflow directly.
 
-If `docs/agents/ship-style.md` doesn't exist, run `/setup-arc` first.
+If `docs/agents/ship-style.md` doesn't exist, run `/setup-zsl-superpowers` first.
 
 ## Checklist Per Cycle
 

@@ -23,7 +23,7 @@ If you have not already explored the codebase, do so to understand the current s
 
 Break the plan into **tracer bullet** issues. Each issue is a thin vertical slice that cuts through ALL integration layers end-to-end, NOT a horizontal slice of one layer.
 
-Slices may be 'HITL' or 'AFK'. HITL slices require human interaction, such as an architectural decision or a design review. AFK slices can be implemented and merged without human interaction. Prefer AFK over HITL where possible.
+Slices may be 'HITL' or 'AFK'. A HITL slice requires a manual action a coding agent **physically cannot perform** — clicking through a third-party console, rotating a real credential, obtaining external sign-off, running a one-off production migration by hand. It is **not** an architectural decision or a design review: those must be resolved upstream via `/grill-with-docs` and recorded as ADRs *before* slices are cut, so the work falls out maximally AFK. AFK slices can be implemented and merged without human interaction. Prefer AFK over HITL where possible — a `[HITL]` slice that's really a decision in disguise is a process leak, not a slice. HITL slices are cleared by `/human-itl`, not `/tdd`.
 
 <vertical-slice-rules>
 - Each slice delivers a narrow but COMPLETE path through every layer (schema, API, UI, tests)
@@ -43,7 +43,7 @@ Each slice gets a title in the form `[<TYPE>] <wave>[<letter>] — <description>
 
 Examples:
 
-- `[HITL] 1 — Decide auth provider`
+- `[HITL] 1 — Register the OAuth app in the provider console and capture client id/secret`
 - `[AFK] 2a — Add OAuth callback endpoint`
 - `[AFK] 2b — Render login button`
 - `[AFK] 3 — Wire callback to session store`
@@ -56,14 +56,14 @@ Present the proposed breakdown as a numbered list. For each slice, show:
 - **Title**: as drafted in step 3 (with the `[TYPE] wave[letter] — description` format)
 - **Type**: HITL / AFK
 - **Blocked by**: which other slices (if any) must complete first
-- **User stories covered**: which user stories this addresses (if the source material has them)
+- **User stories covered**: which user stories this addresses (if the source material has them). Whatever the user approves here is persisted verbatim into the issue body's `## User stories covered` section in step 5 — it is not just a quiz aid; `/verify-coverage` reads it back as its Tier A oracle. **Each covered story carries its parent PRD's `acceptance:` and `observable:` sub-bullets verbatim** so the slice body is self-contained: the agent picking up the slice sees the story's testable contract without needing to re-fetch the PRD, and `/verify-coverage` Tier B has the `observable:` line as its test-generation hint at slice-resolution time.
 
 Ask the user:
 
 - Does the granularity feel right? (too coarse / too fine)
 - Are the dependency relationships correct?
 - Should any slices be merged or split further?
-- Are the correct slices marked as HITL and AFK?
+- Are the correct slices marked as HITL and AFK? Is every `[HITL]` slice a genuine manual action, not a disguised decision (which belongs upstream in `/grill-with-docs` + an ADR)?
 
 Iterate until the user approves the breakdown.
 
@@ -87,6 +87,30 @@ A concise description of this vertical slice. Describe the end-to-end behavior, 
 - [ ] Criterion 1
 - [ ] Criterion 2
 - [ ] Criterion 3
+
+## User stories covered
+
+The PRD user story numbers this slice addresses, each with its short
+text **and the parent's `acceptance:` / `observable:` sub-bullets
+carried over verbatim**. The persisted form of the quiz mapping from
+step 4 — `/verify-coverage` consumes it as its Tier A story→slice map,
+and Tier B reads the `observable:` line as the test-generation hint, so
+both must be in the body, not only spoken in the quiz.
+
+Example:
+
+```
+- 7 — User can reset password via email
+  - acceptance: automatable
+  - observable: POST /password-reset with a valid email enqueues a job
+    that sends a single email containing a one-time link; the link
+    redeems exactly once and sets a new password.
+```
+
+Write `None — enabling/infrastructure slice` for a slice that delivers
+no user-facing story on its own. Omit this whole section only when the
+source had no user stories (a freeform plan), the same way `## Parent`
+is omitted when there's no parent.
 
 ## Blocked by
 
