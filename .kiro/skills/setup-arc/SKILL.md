@@ -1,5 +1,5 @@
 ---
-name: setup-zsl-superpowers
+name: setup-arc
 description: Sets up an `## Agent skills` block in AGENTS.md/CLAUDE.md and `docs/agents/` so the engineering skills know this repo's issue tracker (GitHub or local markdown), triage label vocabulary, domain doc layout, and ship style (PR vs direct push). Run before first use of `to-issues`, `to-prd`, `triage`, `diagnose`, `tdd`, `improve-codebase-architecture`, or `zoom-out` — or if those skills appear to be missing context about the issue tracker, triage labels, domain docs, or ship style.
 disable-model-invocation: true
 ---
