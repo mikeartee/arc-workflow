@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Sync to Global (Auto)",
+  "description": "Fires on the first prompt of each session inside the arc-workflow repo. Copies workspace skills and the arc-workflow steering file into ~/.kiro/ so setup-arc and the other Arc skills stay globally available and current. Idempotent overwrite-with-force; harmless to repeat.",
+  "version": "1",
+  "when": {
+    "type": "promptSubmit"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "powershell -NoProfile -Command \"Copy-Item -Recurse -Force .kiro/skills/* $HOME/.kiro/skills/; Copy-Item -Force .kiro/steering/arc-workflow.md $HOME/.kiro/steering/arc-workflow.md\""
+  }
+}
