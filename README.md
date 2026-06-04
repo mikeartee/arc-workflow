@@ -103,7 +103,7 @@ That's it. The workflow handles setup, alignment, PRD, issues, triage, build, an
 
 1. Edit `.kiro/skills/<name>/SKILL.md` directly
 2. Changes take effect on next invocation — no restart needed
-3. Run the sync hook from this workspace to propagate to `~/.kiro/skills/`
+3. Propagation to `~/.kiro/skills/` is automatic: the `sync-skills-to-global-auto.kiro.hook` fires at session start from this workspace and copies skills + steering to global. To propagate immediately, manually trigger the `sync-skills-to-global` hook (the `userTriggered` escape hatch) or re-run the install command from the Installation section
 
 ### Adding a bundled resource to a skill
 
@@ -116,5 +116,4 @@ That's it. The workflow handles setup, alignment, PRD, issues, triage, build, an
 - `~/.kiro/skills/` — available in every workspace
 - `.kiro/skills/` — workspace-local, overrides global on name collision
 - Removing from `.kiro/skills/` does NOT remove from `~/.kiro/skills/`
-- The sync hook in this repo copies local → global (skills + steering file)
-
+- The sync runs automatically at session start from this repo (`sync-skills-to-global-auto.kiro.hook`), copying local → global (skills + steering file); the manual `sync-skills-to-global` hook remains as an escape hatch

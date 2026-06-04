@@ -7,6 +7,6 @@
   },
   "then": {
     "type": "runCommand",
-    "command": "Copy-Item -Recurse -Force .kiro/skills/* $HOME/.kiro/skills/; Copy-Item -Force .kiro/steering/arc-workflow.md $HOME/.kiro/steering/arc-workflow.md"
+    "command": "powershell -NoProfile -Command \"Copy-Item -Recurse -Force .kiro/skills/* $HOME/.kiro/skills/; Copy-Item -Force .kiro/steering/arc-workflow.md $HOME/.kiro/steering/arc-workflow.md\""
   }
 }

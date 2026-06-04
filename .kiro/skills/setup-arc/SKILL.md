@@ -4,7 +4,7 @@ description: Sets up an `## Agent skills` block in AGENTS.md/CLAUDE.md and `docs
 disable-model-invocation: true
 ---
 
-# Setup ZSL Superpowers
+# Setup Arc
 
 Scaffold the per-repo configuration that the engineering skills assume:
 
@@ -108,9 +108,8 @@ If the user opts in, walk them through:
    - **Replace** the Status options with the canonical five (recommended for new boards, or older boards with no cards yet). Run the mutation:
      ```bash
      gh api graphql -f query='
-       mutation($projectId: ID!, $fieldId: ID!) {
+       mutation($fieldId: ID!) {
          updateProjectV2Field(input: {
-           projectId: $projectId
            fieldId: $fieldId
            singleSelectOptions: [
              {name: "Backlog",     color: GRAY,   description: ""}
@@ -128,9 +127,9 @@ If the user opts in, walk them through:
            }
          }
        }
-     ' -f projectId=<PVT_…> -F fieldId=<PVTSSF_…>
+     ' -F fieldId=<PVTSSF_…>
      ```
-     Re-run `gh project field-list` to capture the new option IDs. Note: `updateProjectV2Field` replaces the option set wholesale; any cards assigned to a removed option (e.g. `Todo`) become unassigned and need manual remapping. Don't run this on a board with live cards without warning the user first.
+     Re-run `gh project field-list` to capture the new option IDs. Note: `updateProjectV2Field` replaces the option set wholesale; any cards assigned to a removed option (e.g. `Todo`) become unassigned and need manual remapping. Don't run this on a board with live cards without warning the user first. (GitHub's `updateProjectV2Field` input takes `fieldId` only — it rejects a `projectId` argument.)
    - **Map** existing options onto the canonical states (recommended when the board already has live cards). Confirm a mapping with the user — e.g. `Todo → Backlog`, `In Progress → In progress` — and record it in `docs/agents/project-board.md` so the skills emit the right option IDs without mutating the field.
 
 4. **Map canonical states to Status options.** Default mapping (override per user preference, or per the mapping agreed in step 3):
