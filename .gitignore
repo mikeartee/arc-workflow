@@ -1,0 +1,3 @@
+# Hands-off mode: machine-local session state toggle.
+# This is per-checkout session state, not shared configuration — never commit it.
+.arc-hands-off.json

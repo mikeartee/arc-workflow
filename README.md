@@ -85,6 +85,15 @@ That's it. The workflow handles setup, alignment, PRD, issues, triage, build, an
 | 5 | Build | `tdd-parallel` | Triaged AFK slices | Integration PR |
 | 6 | Review | `code-review` | Integration PR | Reviewed PR ready to merge |
 
+## Hands-off mode
+
+By default you drive the workflow, invoking each phase and confirming before the next one runs. Turn on hands-off mode to let the workflow auto-advance through the mechanical middle phases (PRD → Issues → Triage → Build → Review) while you're away from the keyboard.
+
+- `/hands-off` — turn hands-off mode on and start auto-advancing from the current phase
+- `/hands-off off` — turn hands-off mode off and go back to driving each phase yourself
+
+The toggle persists across sessions and defaults to off. Two boundaries stay human-only: alignment still happens in the Grill phase before you turn the mode on, and the integration PR is opened but never merged. Anything that needs you — a human-only (HITL) slice or a failed phase — is parked, and you get a single report on the PRD issue summarising what was done, what was parked, and where to merge.
+
 ## Customization Guide
 
 ### Adding a phase
