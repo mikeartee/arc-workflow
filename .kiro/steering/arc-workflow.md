@@ -22,6 +22,13 @@ Never dump the whole plan at once. Move through the phases conversationally.
 > during a default workflow run. They execute only when the user explicitly requests
 > them by name, by phase number, or by saying "include optional phases".
 
+### Phase gating: hands-off toggle
+
+How you move between phases depends on the persistent hands-off toggle (the repo-root `.arc-hands-off.json` state file; absent or `{"state": "off"}` means off, which is the default).
+
+- WHEN the toggle is off, gate every transition on the human: honor the "Do not proceed to Phase N until..." instruction in each phase below and wait for the user to invoke the next phase manually. This is today's behavior.
+- WHEN the toggle is on, hand control to the `arc-handsoff` skill, which auto-advances the mechanical middle phases (PRD → Issues → Triage → Build → Review) in-session without waiting for the human between them. The Grill phase stays human-only and the merge stop is preserved.
+
 ### Phase 0 — Repo setup (first time only)
 
 Check whether `docs/agents/` exists in the current repo. If it does not, the repo has not been configured yet.
@@ -123,7 +130,7 @@ Present findings grouped by severity. Propose a fix plan. Wait for approval befo
 
 At the start of each session, before any phase executes, perform this check:
 
-1. Collect all skill names referenced in phase bodies above.
+1. Collect all skill names referenced in phase bodies and in the hands-off toggle hook above (including `arc-handsoff`).
 2. Check that each referenced skill name exists in the combined skill set (`.kiro/skills/` + `~/.kiro/skills/`).
 3. If any skill name does not resolve to an existing skill directory, surface a warning for that reference.
 4. Present all warnings together as a single pre-flight report before proceeding with the workflow.
